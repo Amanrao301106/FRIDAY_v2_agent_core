@@ -1,0 +1,1 @@
+"""FRIDAY browser control primitives."""

@@ -1,0 +1,17 @@
+# FRIDAY Voice Assistant — Dependencies
+# Install with: pip install -r requirements.txt
+
+# --- Core ---
+ollama>=0.4.0                  # Ollama Python client
+SpeechRecognition>=3.10.0      # Speech recognition
+pyttsx3>=2.90                  # Text-to-speech
+PyAutoGUI>=0.9.54              # GUI automation (keyboard, mouse)
+
+# --- Audio ---
+PyAudio>=0.2.14                # Microphone access (required by SpeechRecognition)
+
+# --- Configuration ---
+PyYAML>=6.0                    # YAML config file parsing
+
+# --- Logging ---
+colorama>=0.4.6                # Colored console output (Windows compatible)

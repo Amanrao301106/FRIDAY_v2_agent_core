@@ -1,0 +1,145 @@
+# ============================================================
+# FRIDAY Voice Assistant — Configuration
+# ============================================================
+# Edit this file to customize FRIDAY's behavior.
+# All settings have sensible defaults; you only need to change
+# what you want to override.
+# ============================================================
+
+# --- LLM Settings ---
+llm:
+  model: "llama3"                    # Ollama model name
+  host: "http://localhost:11434"     # Ollama API host
+  timeout: 30                        # Response timeout in seconds
+  temperature: 0.1                   # Low temperature for deterministic output
+  cache_size: 128                    # LRU cache size for repeated commands
+
+# --- Speech Recognition Settings ---
+speech:
+  wake_word: "hey friday"            # Wake phrase (case-insensitive)
+  ambient_noise_duration: 1.0        # Seconds to calibrate ambient noise
+  phrase_time_limit: 5               # Max seconds for a single phrase
+  wake_phrase_time_limit: 3          # Max seconds for wake word phrase
+  listen_timeout: 7                  # Timeout waiting for command (seconds)
+  energy_threshold: null             # Auto-calibrated if null; set integer to override
+  pause_threshold: 0.8              # Seconds of silence before phrase is considered complete
+  dynamic_energy: true               # Auto-adjust energy threshold for ambient noise
+
+# --- Text-to-Speech Settings ---
+tts:
+  rate: 180                          # Words per minute
+  volume: 0.9                        # Volume 0.0 to 1.0
+  voice_index: 0                     # Index of voice (0 = default system voice)
+
+# --- App Registry ---
+# Hardcoded apps with known executables. For any app NOT listed here,
+# FRIDAY uses a generic handler (Windows `start` command).
+apps:
+  chrome:
+    executable: "chrome.exe"
+    process_name: "chrome.exe"
+    aliases: ["chrome", "google chrome", "browser"]
+
+  vscode:
+    executable: "Code.exe"
+    process_name: "Code.exe"
+    aliases: ["vs code", "code", "visual studio code", "vscode"]
+
+  notepad:
+    executable: "notepad.exe"
+    process_name: "notepad.exe"
+    aliases: ["notepad", "text editor"]
+
+  calculator:
+    executable: "calc.exe"
+    process_name: "Calculator.exe"
+    aliases: ["calculator", "calc"]
+
+  whatsapp:
+    executable: "shell:AppsFolder\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm!App"
+    process_name: "WhatsApp.exe"
+    aliases: ["whatsapp", "whats app"]
+    is_uwp: true
+    launch_delay: 5                  # Extra delay for UWP app startup
+
+# --- Security Settings ---
+security:
+  # Executables allowed to be launched/killed. "*" allows any.
+  allowed_executables:
+    - "chrome.exe"
+    - "Code.exe"
+    - "notepad.exe"
+    - "calc.exe"
+    - "Calculator.exe"
+    - "WhatsApp.exe"
+    - "explorer.exe"
+    - "msedge.exe"
+    - "firefox.exe"
+    - "spotify.exe"
+    - "Discord.exe"
+
+  # Shell commands that are completely blocked
+  blocked_patterns:
+    - "rm "
+    - "del "
+    - "format "
+    - "shutdown"
+    - "restart"
+    - "reg "
+    - "regedit"
+    - "powershell"
+    - "cmd /c"
+
+  # Maximum actions in a single command chain
+  max_chain_length: 10
+
+  # Minimum delay between commands (seconds) — rate limiting
+  command_cooldown: 0.5
+
+  # Maximum input length sent to LLM
+  max_input_length: 500
+
+  # URL schemes allowed for open_website
+  allowed_url_schemes:
+    - "http"
+    - "https"
+
+# --- Retry Settings ---
+retry:
+  max_attempts: 3                    # Total attempts (1 original + 2 retries)
+  backoff_base: 1.0                  # Base delay in seconds (exponential)
+  backoff_max: 8.0                   # Maximum backoff delay
+  # Actions that should NEVER be retried (escalate immediately)
+  fail_fast_actions:
+    - "send_whatsapp"
+
+# --- Logging Settings ---
+logging:
+  level: "INFO"                      # DEBUG, INFO, WARNING, ERROR
+  console: true                      # Print to console
+  file: "logs/friday.log"            # Log file path (relative to project root)
+  audit_file: "logs/audit.log"       # Audit trail file
+  max_file_size_mb: 10               # Rotate log files at this size
+  backup_count: 5                    # Number of rotated logs to keep
+
+# --- Context Settings ---
+context:
+  window_size: 10                    # Number of recent commands to remember
+  track_open_apps: true              # Track which apps are currently open
+
+# --- Automation Policy ---
+automation:
+  direct_commands_enabled: true       # Handle common commands locally before calling the LLM
+  dry_run: false                      # Validate/audit actions without controlling the desktop
+  queue_size: 50                      # Maximum queued commands waiting for execution
+  min_confidence: 0.5                 # Ask for clarification below this LLM confidence
+  agent_enabled: true                  # Enable goal-based multi-step agent mode
+  max_replans: 3                       # Maximum recovery/replanning cycles per task
+  confirmation_actions:                # Actions that require explicit user approval
+    - "send_whatsapp"
+  blocked_actions: []                  # Actions disabled by local policy
+
+# --- Persistent Memory ---
+memory:
+  enabled: true                       # Remember user aliases and preferences
+  file: "data/memory.json"            # Persistent memory store
